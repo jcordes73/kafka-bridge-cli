@@ -5,8 +5,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,9 +18,13 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.MaskingCallback;
+import org.jline.reader.Parser;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.console.SystemRegistry;
+import org.jline.console.impl.SystemRegistryImpl;
 
 import com.redhat.kafka.bridge.commands.consumers.ConsumerCommand;
 import com.redhat.kafka.bridge.commands.health.HealthCommand;
@@ -35,6 +42,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.shell.jline3.PicocliCommands;
 
 @QuarkusMain
 @TopCommand
@@ -118,9 +126,19 @@ public class KafkaBridge implements Runnable, QuarkusApplication {
     private int runInteractive(CommandLine commandLine) throws Exception {
         int exitCode = -1;
 
-        Terminal terminal = TerminalBuilder.terminal();
-        LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).build();
+        Supplier<Path> workDir = () -> Paths.get(System.getProperty("user.dir"));
 
+        Parser parser = new DefaultParser();
+
+        PicocliCommands picocliCommands = new PicocliCommands(commandLine);
+        Terminal terminal = TerminalBuilder.builder().build();
+
+        SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, workDir, null);
+		systemRegistry.setCommandRegistries(picocliCommands);
+		systemRegistry.register("help", picocliCommands);
+
+        LineReader lineReader = LineReaderBuilder.builder().terminal(terminal).completer(systemRegistry.completer()).parser(parser).variable(LineReader.LIST_MAX, 50).build();
+        
         String prompt = "kafka-bridge>";
 
         boolean recording = false;
@@ -204,24 +222,24 @@ public class KafkaBridge implements Runnable, QuarkusApplication {
     }
 
     private int executeLine(PrintWriter pw, CommandLine commandLine, String line) throws Exception {
-        String toolboxCommand = replaceVariables(line);
+        String bridgeCommand = replaceVariables(line);
 
         String variableName = null;
         String filterCommand = null;
 
-        if (toolboxCommand.startsWith("assign variable")){
-            int commandPos = toolboxCommand.indexOf("=");
+        if (bridgeCommand.startsWith("assign variable")){
+            int commandPos = bridgeCommand.indexOf("=");
 
-            variableName = toolboxCommand.substring(16, commandPos);
-            toolboxCommand = toolboxCommand.substring(commandPos+1);
+            variableName = bridgeCommand.substring(16, commandPos);
+            bridgeCommand = bridgeCommand.substring(commandPos+1);
         }
 
-        int filterIndex = toolboxCommand.indexOf("|");
+        int filterIndex = bridgeCommand.indexOf("|");
 
         if (filterIndex > 0) {
-            filterCommand = toolboxCommand.substring(filterIndex+1);
+            filterCommand = bridgeCommand.substring(filterIndex+1);
 
-            toolboxCommand = toolboxCommand.substring(0, filterIndex);
+            bridgeCommand = bridgeCommand.substring(0, filterIndex);
         }
 
 
@@ -229,7 +247,7 @@ public class KafkaBridge implements Runnable, QuarkusApplication {
         
         String regex = "\"([^\"]*)\"|(\\S+)";
 
-        Matcher m = Pattern.compile(regex).matcher(toolboxCommand);
+        Matcher m = Pattern.compile(regex).matcher(bridgeCommand);
         while (m.find()) {
             if (m.group(1) != null) {
                 parameters.add(m.group(1));

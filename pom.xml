@@ -14,7 +14,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.0.3.Final</quarkus.platform.version>
     <quarkus.native.additional-build-args>--report-unsupported-elements-at-runtime</quarkus.native.additional-build-args>
-    <jline.version>3.22.0</jline.version>
+    <jline.version>3.23.0</jline.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
   </properties>
@@ -77,6 +77,11 @@
     </dependency>
     <dependency>
       <groupId>org.jline</groupId>
+      <artifactId>jline</artifactId>
+      <version>${jline.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
       <artifactId>jline-terminal-jna</artifactId>
       <version>${jline.version}</version>
     </dependency>
@@ -85,6 +90,21 @@
       <artifactId>jline-reader</artifactId>
       <version>${jline.version}</version>
     </dependency>
+    <dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli-shell-jline3</artifactId>
+			<version>4.7.1</version>
+		</dependency>
+    <dependency>
+			<groupId>com.github.albfernandez</groupId>
+			<artifactId>juniversalchardet</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+    <dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>2.4.0</version>
+		</dependency>
     <dependency>
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
