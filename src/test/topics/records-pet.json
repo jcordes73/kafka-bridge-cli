@@ -1,0 +1,10 @@
+{
+  "records" : [
+    {
+      "value" : "{\"id\": 1, \"name\": \"Max\"}"
+    },
+    {
+      "value" : "{\"id\": 2, \"name\": \"Nelly\"}"
+    }
+  ]
+}
