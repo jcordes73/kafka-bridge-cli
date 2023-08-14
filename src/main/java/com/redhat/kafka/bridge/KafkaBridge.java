@@ -29,6 +29,7 @@ import org.jline.console.impl.SystemRegistryImpl;
 import com.redhat.kafka.bridge.commands.consumers.ConsumerCommand;
 import com.redhat.kafka.bridge.commands.health.HealthCommand;
 import com.redhat.kafka.bridge.commands.info.InfoCommand;
+import com.redhat.kafka.bridge.commands.metrics.MetricsCommand;
 import com.redhat.kafka.bridge.commands.openapi.OpenApiCommand;
 import com.redhat.kafka.bridge.commands.ready.ReadyCommand;
 import com.redhat.kafka.bridge.commands.topics.TopicsCommand;
@@ -51,6 +52,7 @@ import picocli.shell.jline3.PicocliCommands;
                         HealthCommand.class,
                         OpenApiCommand.class,
                         ReadyCommand.class,
+                        MetricsCommand.class,
                         ConsumerCommand.class,
                         TopicsCommand.class
                         },

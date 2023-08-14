@@ -239,4 +239,8 @@ public interface KafkaBridgeService {
     @GET
     @Path("/ready")
     public String getReady();
+
+    @GET
+    @Path("/metrics")
+    public String getMetrics();
 }
